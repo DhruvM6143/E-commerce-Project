@@ -3,8 +3,9 @@ import { ShopContext } from '../Context/ShopContext'
 import { useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import Loading from '../Components/Loading'
 
-const Verify = () => {
+const Verify = ({ loading }) => {
     const { navigate, token, setCartItems, backendUrl } = useContext(ShopContext)
     const [searchParams, setSearchParams] = useSearchParams()
 
@@ -36,7 +37,13 @@ const Verify = () => {
     }, [token])
     return (
         <div>
+            {loading ? (<Loading show={loading} />)
+                : (
+                    <div>
 
+                    </div>
+                )
+            }
         </div>
     )
 }

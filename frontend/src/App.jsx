@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Route, Routes } from "react-router-dom"
 import Home from "./Pages/Home"
 import Collections from "./Pages/Collections"
@@ -15,8 +15,42 @@ import SearchBar from "./Components/SearchBar"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from "./Pages/Verify"
+import Loading from "./Components/Loading"
+import axios from "axios"
 
 function App() {
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    // Request interceptor
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        setLoading(true);
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Response interceptor
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => {
+        setLoading(false);
+        return response;
+      },
+      (error) => {
+        setLoading(false); // stop loading even if there's an error
+        return Promise.reject(error);
+      }
+    );
+
+    // Cleanup interceptors when component unmounts
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, []);
 
 
   return (
@@ -25,17 +59,18 @@ function App() {
       <ToastContainer autoClose={2000} />
       <Navbar />
       <SearchBar />
+
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/collection" element={<Collections />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/product/:productId" element={<Product />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/place-order" element={<PlaceOrder />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/verify" element={<Verify />} />
+        <Route path="/" element={<Home loading={loading} />} />
+        <Route path="/collection" element={<Collections loading={loading} />} />
+        <Route path="/about" element={<About loading={loading} />} />
+        <Route path="/contact" element={<Contact loading={loading} />} />
+        <Route path="/product/:productId" element={<Product loading={loading} />} />
+        <Route path="/cart" element={<Cart loading={loading} />} />
+        <Route path="/login" element={<Login loading={loading} />} />
+        <Route path="/place-order" element={<PlaceOrder loading={loading} />} />
+        <Route path="/orders" element={<Orders loading={loading} />} />
+        <Route path="/verify" element={<Verify loading={loading} />} />
       </Routes>
       <Footer />
     </div>
