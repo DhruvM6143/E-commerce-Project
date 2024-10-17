@@ -6,13 +6,14 @@ import { toast } from 'react-toastify';
 import { useEffect } from 'react';
 
 const Login = () => {
-    const { token, setToken, navigate, backendUrl } = useContext(ShopContext)
+    const { token, setToken, navigate, backendUrl, setCartItems } = useContext(ShopContext)
     const [email, setEmail] = useState('')
     const [curr, setCurr] = useState('Login');
     const [password, setPassword] = useState('')
     const [name, setName] = useState('')
 
     const onSubmitHandler = async (e) => {
+
         e.preventDefault();
         try {
             if (curr === 'Sign up') {
@@ -33,10 +34,15 @@ const Login = () => {
                 if (response.data.success) {
                     setToken(response.data.token);
                     localStorage.setItem('token', response.data.token);
-                    toast.success(response.data.message)
+                    toast.success(response.data.message, {
+                        toastId: "succes1"
+                    })
+                    await fetchCartItems(response.data.token)
                 }
                 else {
-                    toast.error(response.data.message)
+                    toast.error(response.data.message, {
+                        toastId: "error1"
+                    })
 
                 }
 
@@ -47,11 +53,28 @@ const Login = () => {
         }
     }
 
+    const fetchCartItems = async (token) => {
+        try {
+            const response = await axios.post(`${backendUrl}/api/cart/get`, {}, { headers: { token } }) // Correctly setting the authorization header
+            if (response.data.success) {
+                setCartItems(response.data.cartData);
+            }
+            else {
+                toast.error(response.data.message);
+            }
+
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+
+        }
+    }
+
     useEffect(() => {
         if (token) {
             navigate('/')
         }
-    }, [token])
+    }, [token, navigate])
 
 
 

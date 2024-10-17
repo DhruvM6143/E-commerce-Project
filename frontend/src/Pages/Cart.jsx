@@ -26,7 +26,7 @@ const Cart = () => {
             }
         }
         setCartData(tempData);
-    }, [cartItems, products]);
+    }, [cartItems, products, token]);
 
     return (
         <div className="border-t pt-14">
