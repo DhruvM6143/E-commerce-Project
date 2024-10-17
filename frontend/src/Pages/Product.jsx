@@ -29,7 +29,7 @@ const Product = ({ loading }) => {
     useEffect(() => {
         fetchProductData();
         window.scrollTo(0, 0); // Scroll to the top of the page
-    }, [productId]);
+    }, [productId, products]);
 
     return productData ? (
         <div>
