@@ -73,7 +73,7 @@ const registerUser = async (req, res) => {
                 message: "Invalid Email"
             })
         }
-        if (email.length > 30) {
+        if (email.length > 30 && email.length < 5) {
             res.json({
                 success: false,
                 message: "Email length exceeds the limit"
