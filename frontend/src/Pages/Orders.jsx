@@ -8,7 +8,7 @@ import Loading from '../Components/Loading'
 
 const Orders = ({ loading }) => {
 
-    const { backendUrl, token, currency, navigate } = useContext(ShopContext)
+    const { backendUrl, token, currency, navigate, setToken } = useContext(ShopContext)
 
     const [order, setOrder] = useState([]);
 
@@ -35,16 +35,26 @@ const Orders = ({ loading }) => {
             }
 
         } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+
 
         }
     }
     useEffect(() => {
-        if (token) {
-            loadOrderData()
+        if (!token) {
+            const savedToken = localStorage.getItem('token')
+            if (savedToken) {
+                setToken(savedToken)
+                loadOrderData()
+            }
+            else {
+                navigate('/')
+                toast.error(error.message)
+            }
         }
         else {
-            toast.error('login please')
-            navigate('/')
+            loadOrderData()
         }
     }, [token, navigate])
     return (
