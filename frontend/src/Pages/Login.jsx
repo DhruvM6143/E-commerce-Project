@@ -88,9 +88,9 @@ const Login = () => {
                 <button
                     type="button"
                     className='absolute right-3 top-1/2 transform -translate-y-1/2' // Positioning the eye icon
-                    onClick={() => setShowPassword(prev => !prev)} // Toggle password visibility
+                    onClick={() => setPassword(prev => !prev)} // Toggle password visibility
                 >
-                    <img className='w-[22px]' src={showPassword ? assets.eye : assets.hidden} alt="Toggle password visibility" />
+                    <img className='w-[23px]' src={showPassword ? assets.eye : assets.hidden} alt="Toggle password visibility" />
                 </button>
             </div>
             <div className='w-full flex justify-between text-sm mt-[-9px]'>
