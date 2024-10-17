@@ -4,6 +4,7 @@ import { assets } from '../assets/frontend_assets/assets';
 import Title from '../Components/Title'
 import ProductItem from '../Components/ProductItem';
 import Loading from '../Components/Loading';
+
 const Collections = ({ loading }) => {
 
     const { products, search, showSearch } = useContext(ShopContext);
@@ -32,42 +33,48 @@ const Collections = ({ loading }) => {
         }
     }
 
-    const applyFilter = () => {
+    const applyFilterAndSort = () => {
         let productsCopy = products.slice();
+
+        // Apply category filter
         if (category.length > 0) {
             productsCopy = productsCopy.filter(item => category.includes(item.category))
         }
+
+        // Apply search filter
         if (showSearch && search) {
             productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
         }
+
+        // Apply subcategory filter
         if (subCategory.length > 0) {
             productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
         }
+
+        // Apply sorting based on sortType
+        switch (sortType) {
+            case 'low-high':
+                productsCopy.sort((a, b) => (a.price - b.price));
+                break;
+            case 'high-low':
+                productsCopy.sort((a, b) => (b.price - a.price));
+                break;
+            default:
+                break;
+        }
+
         setFilterProducts(productsCopy);
     }
 
-    const sortProducts = () => {
-        let filterProductCopy = filterProduct.slice();
-        switch (sortType) {
-            case 'low-high':
-                setFilterProducts(filterProductCopy.sort((a, b) => (a.price - b.price)));
-                break;
-            case 'high-low':
-                setFilterProducts(filterProductCopy.sort((a, b) => (b.price - a.price)));
-                break;
-            default:
-                applyFilter();
-                break;
-        }
-    }
-
+    // Apply filters and sorting when category, subcategory, search, or products change
     useEffect(() => {
-        applyFilter();
-    }, [category, subCategory, search, showSearch, products])
-    useEffect(() => {
-        sortProducts()
-    }, [sortType])
+        applyFilterAndSort();
+    }, [category, subCategory, search, showSearch, products]);
 
+    // Apply sorting when sortType changes
+    useEffect(() => {
+        applyFilterAndSort();
+    }, [sortType]);
 
     return (
         <div>
@@ -147,4 +154,4 @@ const Collections = ({ loading }) => {
     )
 }
 
-export default Collections
+export default Collections;
