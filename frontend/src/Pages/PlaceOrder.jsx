@@ -5,7 +5,7 @@ import { assets } from '../assets/frontend_assets/assets';
 import { ShopContext } from '../Context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
+const toastId = 'auth'
 const PlaceOrder = () => {
     const [method, setMethod] = useState('COD'); // Default payment method
     const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
@@ -44,7 +44,9 @@ const PlaceOrder = () => {
                     }
                 } catch (error) {
                     console.log(error);
-                    toast.error('Error with payment')
+                    if (!toast.isActive(toastId)) {
+                        toast.error('error', { id: toastId, autoClose: 2000 })
+                    }
 
                 }
 
@@ -122,7 +124,9 @@ const PlaceOrder = () => {
 
     useEffect(() => {
         if (!token) {
-            toast.error("Please login")
+            if (!toast.isActive(toastId)) {
+                toast.error('Please Login first', { id: toastId, autoClose: 2000 })
+            }
             navigate('/cart')
         }
     }, [token, navigate])

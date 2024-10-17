@@ -11,6 +11,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [showPassword, setShowPassword] = useState(false); // State for password visibility
+    const toastId = 'auth';
 
     const onSubmitHandler = async (e) => {
 
@@ -21,26 +22,36 @@ const Login = () => {
                 if (response.data.success) {
                     setToken(response.data.token);
                     localStorage.setItem('token', response.data.token);
-                    toast.success(response.data.message);
+                    if (!toast.isActive(toastId)) {
+                        toast.success(response.data.message, { toastId })
+                    }
                 } else {
-                    toast.error(response.data.message);
+                    if (!toast.isActive(toastId)) {
+                        toast.error(response.data.message, { toastId })
+                    }
                 }
             } else {
                 const response = await axios.post(`${backendUrl}/api/user/login`, { email, password });
                 if (response.data.success) {
                     setToken(response.data.token);
                     localStorage.setItem('token', response.data.token);
-                    toast.success(response.data.message)
+                    if (!toast.isActive(toastId)) {
+                        toast.success(response.data.message, { toastId })
+                    }
                 }
                 else {
-                    toast.error(response.data.message)
+                    if (!toast.isActive(toastId)) {
+                        toast.error(response.data.message, { toastId })
+                    }
 
                 }
 
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.message);
+            if (!toast.isActive(toastId)) {
+                toast.error(error.message, { toastId })
+            }
         }
     }
 
@@ -88,7 +99,7 @@ const Login = () => {
                 <button
                     type="button"
                     className='absolute right-3 top-1/2 transform -translate-y-1/2' // Positioning the eye icon
-                    onClick={() => setPassword(prev => !prev)} // Toggle password visibility
+                    onClick={() => setShowPassword(prev => !prev)} // Toggle password visibility
                 >
                     <img className='w-[23px]' src={showPassword ? assets.eye : assets.hidden} alt="Toggle password visibility" />
                 </button>
