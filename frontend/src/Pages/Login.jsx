@@ -5,14 +5,15 @@ import { toast } from 'react-toastify';
 import { assets } from '../assets/frontend_assets/assets';
 
 const Login = () => {
-    const { token, setToken, navigate, backendUrl, setCartItems } = useContext(ShopContext);
-    const [email, setEmail] = useState('');
+    const { token, setToken, navigate, backendUrl } = useContext(ShopContext)
+    const [email, setEmail] = useState('')
     const [curr, setCurr] = useState('Login');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [showPassword, setShowPassword] = useState(false); // State for password visibility
 
     const onSubmitHandler = async (e) => {
+
         e.preventDefault();
         try {
             if (curr === 'Sign up') {
@@ -29,37 +30,27 @@ const Login = () => {
                 if (response.data.success) {
                     setToken(response.data.token);
                     localStorage.setItem('token', response.data.token);
-                    toast.success(response.data.message, { toastId: "success1" });
-                    await fetchCartItems(response.data.token);
-                } else {
-                    toast.error(response.data.message, { toastId: "error1" });
+                    toast.success(response.data.message)
                 }
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error('Error occurred');
-        }
-    };
+                else {
+                    toast.error(response.data.message)
 
-    const fetchCartItems = async (token) => {
-        try {
-            const response = await axios.post(`${backendUrl}/api/cart/get`, {}, { headers: { token } });
-            if (response.data.success) {
-                setCartItems(response.data.cartData);
-            } else {
-                toast.error(response.data.message);
+                }
+
             }
         } catch (error) {
             console.log(error);
             toast.error(error.message);
         }
-    };
+    }
 
     useEffect(() => {
         if (token) {
             navigate('/');
         }
-    }, [token, navigate]);
+    }, [token])
+
+
 
     return (
         <form onSubmit={onSubmitHandler} className='flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800'>
