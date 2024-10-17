@@ -64,6 +64,8 @@ import dropdown_icon from './dropdown_icon.png'
 import exchange_icon from './exchange_icon.png'
 import profile_icon from './profile_icon.png'
 import quality_icon from './quality_icon.png'
+import hidden from './hidden.png'
+import eye from './eye.png'
 import search_icon from './search_icon.png'
 import star_dull_icon from './star_dull_icon.png'
 import star_icon from './star_icon.png'
@@ -81,6 +83,8 @@ export const assets = {
     cart_icon,
     dropdown_icon,
     exchange_icon,
+    hidden,
+    eye,
     profile_icon,
     quality_icon,
     Dhruv,
