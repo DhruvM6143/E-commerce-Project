@@ -27,7 +27,8 @@ const Product = () => {
 
     useEffect(() => {
         fetchProductData();
-    }, [productId])
+        window.scrollTo(0, 0); // Scroll to the top of the page
+    }, [productId]);
 
     return productData ? (
         <div className='border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100'>

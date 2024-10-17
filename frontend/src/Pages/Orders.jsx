@@ -3,10 +3,11 @@ import Title from '../Components/Title'
 import { ShopContext } from '../Context/ShopContext'
 import { useContext } from 'react'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Orders = () => {
 
-    const { backendUrl, token, currency } = useContext(ShopContext)
+    const { backendUrl, token, currency, navigate } = useContext(ShopContext)
 
     const [order, setOrder] = useState([]);
 
@@ -37,8 +38,14 @@ const Orders = () => {
         }
     }
     useEffect(() => {
-        loadOrderData()
-    }, [token])
+        if (token) {
+            loadOrderData()
+        }
+        else {
+            toast.error('login please')
+            navigate('/')
+        }
+    }, [token, navigate])
     return (
         <div className='border-t pt-16'>
             <div className='text-2xl'>

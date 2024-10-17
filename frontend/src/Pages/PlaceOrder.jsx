@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Title from '../Components/Title';
 import CartTotal from '../Components/CartTotal';
 import { assets } from '../assets/frontend_assets/assets';
@@ -119,6 +119,13 @@ const PlaceOrder = () => {
             toast.error('An error occurred while placing your order. Please try again.');
         }
     };
+
+    useEffect(() => {
+        if (!token) {
+            toast.error("Please login")
+            navigate('/cart')
+        }
+    }, [token, navigate])
 
     return (
         <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
