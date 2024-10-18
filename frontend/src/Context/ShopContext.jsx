@@ -26,15 +26,18 @@ const ShopContextProvider = (props) => {
         if (cartData[itemId]) {
             if (cartData[itemId][size]) {
                 cartData[itemId][size] += 1;
+                toast.success("Item added to cart")
 
             }
             else {
                 cartData[itemId][size] = 1;
+                toast.success("Item added to cart")
             }
         }
         else {
             cartData[itemId] = {};
             cartData[itemId][size] = 1;
+            toast.success("Item added to cart")
         }
         setCartItems(cartData);
 
@@ -77,7 +80,7 @@ const ShopContextProvider = (props) => {
         if (token) {
             try {
                 await axios.post(backendUrl + '/api/cart/update', { itemId, size, quantity }, { headers: { token } })
-
+                toast.error("Item removed from the cart")
 
             } catch (error) {
                 console.log(error);
