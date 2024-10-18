@@ -18,7 +18,7 @@ const Contact = () => {
                     <p className='text-gray-500 font-semibold'>Tel: (123) 456-7890 <br />Email: contact@gmail.com</p>
                     <p className='font-semibold text-xl text-gray-600'>Careers At Naruto.com</p>
                     <p className='text-gray-500 font-semibold'>Lear more about our teams and job openings</p>
-                    <button className='border border-black px-8 py-4 text-sm hover:bg-black hover:text-white transition-all duration-500 rounded-sm'>Expore Jobs</button>
+                    <button className='border border-black px-8 py-4 text-sm hover:bg-black hover:text-white transition-all duration-500 rounded-sm'>Explore Jobs</button>
                 </div>
 
             </div>
