@@ -79,7 +79,7 @@ const registerUser = async (req, res) => {
                 message: "Email length exceeds  the limit"
             })
         }
-        if (password.length < 7) {
+        if (password.length < 5) {
             return res.json({
                 success: false,
                 message: "Password must be at least 5 characters long"
