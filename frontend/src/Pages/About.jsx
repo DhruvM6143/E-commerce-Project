@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Title from '../Components/Title'
 import { assets } from '../assets/frontend_assets/assets'
 import NewsLetter from '../Components/NewsLetter'
 const About = () => {
+    useEffect(() => {
+
+        window.scrollTo(0, 0); // Scroll to the top of the page
+    }, []);
     return (
         <div>
             <div className='text-2xl text-center pt-8 border-t'>
