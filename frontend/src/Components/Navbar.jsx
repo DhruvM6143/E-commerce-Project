@@ -1,10 +1,11 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { assets } from '../assets/frontend_assets/assets'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ShopContext } from '../Context/ShopContext';
 const Navbar = () => {
-    const [visible, setVisible] = useState(false);
-    const { setShowSearch, showSearch, getCartCount, navigate, token, setToken, setCartItems } = useContext(ShopContext)
+    const location = useLocation();
+
+    const { setShowSearch, showSearch, getCartCount, navigate, token, setToken, setCartItems, visible, setVisible } = useContext(ShopContext)
 
     const logout = () => {
         navigate('/login')
@@ -13,6 +14,8 @@ const Navbar = () => {
         setCartItems({})
 
     }
+
+
 
 
 
@@ -43,31 +46,55 @@ const Navbar = () => {
 
             </ul>
             <div className='flex items-center gap-6'>
-                <img src={assets.search_icon} onClick={() => setShowSearch(!showSearch)} className='w-5 cursor-pointer' alt="" />
-                <div className='group relative '>
-                    {
+                {
+                    location.pathname.includes('collection') ? <img src={assets.search_icon} onClick={() => {
+                        setShowSearch(!showSearch); console.log("Clicked");
+                    }} className='w-5 cursor-pointer' alt="" />
+                        : null
+                }
+                <div className='relative flex items-center gap-4 group'>
+                    {/* Profile Icon or Login Button */}
+                    {token ? (
+                        <img
+                            onClick={() => token ? null : navigate('/login')}
+                            src={assets.profile_icon}
+                            className='w-5 sm:w-6 md:w-7 cursor-pointer'
+                            alt="Profile"
+                        />
+                    ) : (
+                        <button
+                            onClick={() => navigate('/login')}
+                            className='mb-2 rounded-md bg-black text-white font-light px-4 py-1 sm:px-5 sm:py-2 mt-4 text-xs sm:text-sm'
+                        >
+                            Login
+                        </button>
+                    )}
 
-                        token ? <img onClick={() => token ? null : navigate('/login')} src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
-                            : <button onClick={() => navigate('/login')} className='mb-2 mr-5 rounded-md bg-black text-white font-light px-5 py-1 mt-4'>Login</button>
-                    }
-                    {
-                        token ? null
-                            : <a href='https://naruto-admin.vercel.app' className='mb-2 rounded-md bg-black text-white font-light px-5 py-2 mt-4'>Admin Login</a>
-                    }
+                    {/* Admin Login Link */}
+                    {!token && (
+                        <a
+                            href='https://naruto-admin.vercel.app'
+                            className='mb-2 rounded-md bg-black text-white font-light px-4 py-1 sm:px-5 sm:py-2 mt-4 text-center text-xs sm:text-sm'
+                        >
+                            Admin Login
+                        </a>
+                    )}
 
-                    {/* Drop Down */}
-                    {
-                        token &&
-                        <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4 '>
-                            <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
-
-                                <Link to='/orders'><p className='cursor-pointer hover:text-black'>Orders</p></Link>
-
-                                <p onClick={logout} className='cursor-pointer hover:text-black'>Logout</p>
+                    {/* Dropdown Menu */}
+                    {token && (
+                        <div className='hidden group-hover:block absolute right-0 pt-4 w-full sm:w-48'>
+                            <div className='flex flex-col gap-2 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
+                                <Link to='/orders'>
+                                    <p className='cursor-pointer hover:text-black text-sm md:text-base'>Orders</p>
+                                </Link>
+                                <p onClick={logout} className='cursor-pointer hover:text-black text-sm md:text-base'>
+                                    Logout
+                                </p>
                             </div>
                         </div>
-                    }
+                    )}
                 </div>
+
                 <Link to="/cart" className='relative'>
                     <img src={assets.cart_icon} className='w-5 min-w-5' alt="" />
                     <p className='absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white font-bold aspect-square rounded-full text-[8px]'>{getCartCount()}</p>
