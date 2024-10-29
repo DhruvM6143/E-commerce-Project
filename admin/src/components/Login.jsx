@@ -41,7 +41,10 @@ const Login = ({ setToken, loading }) => {
                                     <p className='text-sm font-medium mb-2 text-gray-700'>Password</p>
                                     <input className='rounded-md w-full px-3 py-2 border border-gray-300 outline-none' type="text" onChange={(e) => setPassword(e.target.value)} value={password} placeholder='Enter your password' required />
                                 </div>
-                                <button className='mt-2 w-full px-4 py-2 rounded-md bg-black text-white' type='submit'>Login</button>
+                                <div className='flex flex-col'>
+                                    <button className='mt-2 w-full px-4 py-2 rounded-md bg-black text-white mb-3' type='submit'>Login</button>
+                                    <a className='mt-2 w-full px-4 py-2 rounded-md bg-black text-white text-center' href='https://naruto-frontend.vercel.app/login' >User Login</a>
+                                </div>
                             </form>
                         </div>
                     </div>
