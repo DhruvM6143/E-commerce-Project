@@ -46,8 +46,13 @@ const Navbar = () => {
                 <img src={assets.search_icon} onClick={() => setShowSearch(!showSearch)} className='w-5 cursor-pointer' alt="" />
                 <div className='group relative '>
                     {
+
                         token ? <img onClick={() => token ? null : navigate('/login')} src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
-                            : <button onClick={() => navigate('/login')} className='mb-2 rounded-md bg-black text-white font-light px-5 py-1 mt-4'>Login</button>
+                            : <button onClick={() => navigate('/login')} className='mb-2 mr-5 rounded-md bg-black text-white font-light px-5 py-1 mt-4'>Login</button>
+                    }
+                    {
+                        token ? <img onClick={() => token ? null : navigate('/login')} src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
+                            : <a href='https://naruto-admin.vercel.app' className='mb-2 rounded-md bg-black text-white font-light px-5 py-2 mt-4'>Admin Login</a>
                     }
 
                     {/* Drop Down */}
