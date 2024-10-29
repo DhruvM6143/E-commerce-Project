@@ -62,7 +62,7 @@ const Navbar = () => {
                             <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
 
                                 <Link to='/orders'><p className='cursor-pointer hover:text-black'>Orders</p></Link>
-                                <Link to='/orders'><p className='cursor-pointer hover:text-black'>My Profile</p></Link>
+
                                 <p onClick={logout} className='cursor-pointer hover:text-black'>Logout</p>
                             </div>
                         </div>
