@@ -17,6 +17,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import Verify from "./Pages/Verify"
 import Loading from "./Components/Loading"
 import axios from "axios"
+import MyProfile from "./Pages/MyProfile"
+import ForgotPassword from "./Pages/ForgotPassword"
+import ResetPassword from "./ResetPassword"
+import VerifyEmail from "./Pages/VerifyEmail"
 
 function App() {
   const [loading, setLoading] = useState(false)
@@ -71,6 +75,11 @@ function App() {
         <Route path="/place-order" element={<PlaceOrder loading={loading} />} />
         <Route path="/orders" element={<Orders loading={loading} />} />
         <Route path="/verify" element={<Verify loading={loading} />} />
+        <Route path="/profile" element={<MyProfile loading={loading} />} />
+        <Route path="/forgot-password" element={<ForgotPassword loading={loading} />} />
+        <Route path="/reset-password/:token" element={<ResetPassword loading={loading} />} />
+        <Route path="/verify-email" element={<VerifyEmail loading={loading} />} />
+
       </Routes>
       <Footer />
     </div>

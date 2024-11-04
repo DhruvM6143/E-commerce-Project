@@ -21,10 +21,10 @@ const Login = ({ loading }) => {
             if (curr === 'Sign up') {
                 const response = await axios.post(`${backendUrl}/api/user/register`, { name, email, password });
                 if (response.data.success) {
-                    setToken(response.data.token);
-                    localStorage.setItem('token', response.data.token);
+                    navigate('/verify-email')
+
                     if (!toast.isActive(toastId)) {
-                        toast.success(response.data.message, { toastId })
+                        toast.success("Please Verify your Email", { toastId })
                     }
                 } else {
                     if (!toast.isActive(toastId)) {
@@ -109,7 +109,7 @@ const Login = ({ loading }) => {
                             </button>
                         </div>
                         <div className='w-full flex justify-between text-sm mt-[-9px]'>
-                            <p className='cursor-pointer'>Forgot your password?</p>
+                            <p onClick={() => navigate('/forgot-password')} className='cursor-pointer'>Forgot your password?</p>
                             {curr === 'Login' ? (
                                 <p className='cursor-pointer' onClick={() => setCurr('Sign up')}>Create Account</p>
                             ) : (

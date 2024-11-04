@@ -2,7 +2,8 @@ import userModel from "../models/User.model.js";
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-
+import { passwordResetSuccessMail, sendPasswordResetEmail, sendVerificationEmail, sendWelcomeMail } from "../mailTrap/emails.js";
+import crypto from 'crypto'
 
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET)
@@ -89,16 +90,18 @@ const registerUser = async (req, res) => {
         //created hashed password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
         const newUser = new userModel({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword, verificationToken,
+            verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000
         })
 
         const user = await newUser.save();
 
         const token = createToken(user._id)
+        await sendVerificationEmail(user.email, verificationToken)
 
         res.json({
             success: true,
@@ -116,7 +119,86 @@ const registerUser = async (req, res) => {
     }
 }
 
+const verifyEmail = async (req, res) => {
+    const { code } = req.body;
+    // 1 0 2 5 4
+    try {
+        const user = await userModel.findOne({
+            verificationToken: code,
+            verificationTokenExpiresAt: { $gt: Date.now() }
+        })
+        if (!user) {
+            return res.json({ success: false, message: 'Invalid code' })
+        }
+        user.isVerified = true
+        user.verificationToken = undefined
+        user.verificationTokenExpiresAt = undefined
+        await user.save()
+        await sendWelcomeMail(user.email, user.name)
+        const token = createToken(user._id)
+        res.json({
+            success: true, message: 'Email Verified Successfully',
+            token,
+            user: {
+                ...user._doc,
+                password: undefined
+            },
+        })
 
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: 'Server Error' })
+
+    }
+
+}
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' })
+        }
+        const resetToken = crypto.randomBytes(20).toString('hex')
+        const resetTokenTime = Date.now() + 1 * 60 * 60 * 1000  //1hour
+
+        user.resetPasswordToken = resetToken
+        user.resetPasswordExpiresAt = resetTokenTime
+
+        await user.save()
+        await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`)
+        res.json({ success: true, message: 'Password Reset Link Sent Successfully' })
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: 'Server Error' })
+
+    }
+}
+export const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body
+
+        const user = await userModel.findOne({ resetPasswordToken: token, resetPasswordExpiresAt: { $gt: Date.now() } })
+        if (!user) {
+            return res.json({ success: false, message: 'Invalid Token' })
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        user.password = hashedPassword
+        user.resetPasswordToken = undefined
+        user.resetPasswordExpiresAt = undefined
+        await user.save()
+
+        await passwordResetSuccessMail(user.email)
+        res.json({ success: true, message: 'Password Reset Successful' })
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: 'Server Error' })
+
+    }
+}
 //route for Admin Login
 
 const adminLogin = async (req, res) => {
@@ -149,6 +231,55 @@ const adminLogin = async (req, res) => {
 
 }
 
-//route for admin registration
+const userDetails = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const user = await userModel.findById(userId);
+        res.json({
+            success: true,
+            user
+        })
+    } catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: "Server Error"
+        })
 
-export { loginUser, registerUser, adminLogin }
+    }
+}
+
+const updateDetails = async (req, res) => {
+    try {
+        const { userId, newName, newEmail, newPassword } = req.body;
+        const updatedFields = {};
+
+        // Update only provided fields
+        if (newName) updatedFields.name = newName;
+        if (newEmail) updatedFields.email = newEmail;
+
+        if (newPassword) {
+            const salt = await bcrypt.genSalt(10);
+            updatedFields.password = await bcrypt.hash(newPassword, salt);
+        }
+
+        const user = await userModel.findByIdAndUpdate(userId, updatedFields, { new: true });
+
+        res.json({
+            success: true,
+            message: 'Updated user successfully',
+            user,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
+    }
+};
+
+
+
+
+export { loginUser, registerUser, verifyEmail, adminLogin, userDetails, updateDetails }

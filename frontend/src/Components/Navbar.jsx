@@ -82,10 +82,13 @@ const Navbar = () => {
 
                     {/* Dropdown Menu */}
                     {token && (
-                        <div className='hidden group-hover:block absolute right-0 pt-4 w-full sm:w-48'>
+                        <div className='hidden group-hover:block absolute right-0 pt-4 w-full sm:w-48 top-4'>
                             <div className='flex flex-col gap-2 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
                                 <Link to='/orders'>
                                     <p className='cursor-pointer hover:text-black text-sm md:text-base'>Orders</p>
+                                </Link>
+                                <Link to='/profile'>
+                                    <p className='cursor-pointer hover:text-black text-sm md:text-base'>Update Profile</p>
                                 </Link>
                                 <p onClick={logout} className='cursor-pointer hover:text-black text-sm md:text-base'>
                                     Logout
