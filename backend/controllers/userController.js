@@ -166,7 +166,7 @@ export const forgotPassword = async (req, res) => {
         user.resetPasswordExpiresAt = resetTokenTime
 
         await user.save()
-        await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`)
+        await sendPasswordResetEmail(user.email, `https://naruto-frontend.vercel.app/reset-password/${resetToken}`)
         res.json({ success: true, message: 'Password Reset Link Sent Successfully' })
     } catch (error) {
         console.log(error);
