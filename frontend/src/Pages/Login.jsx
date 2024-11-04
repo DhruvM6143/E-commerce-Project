@@ -37,7 +37,7 @@ const Login = ({ loading }) => {
         setPassword(passwordValue)
 
         const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        setIsValid(passwordPattern.test(passwordValue))
+        setIsPasswordValid(passwordPattern.test(passwordValue))
     }
 
 
