@@ -256,7 +256,16 @@ const updateDetails = async (req, res) => {
 
         // Update only provided fields
         if (newName) updatedFields.name = newName;
-        if (newEmail) updatedFields.email = newEmail;
+        if (newEmail) {
+            const existingUser = await userModel.findOne({ email: newEmail });
+            if (existingUser && existingUser._id.toString() !== userId) {
+                return res.json({
+                    success: false,
+                    message: "Email already exists",
+                });
+            }
+            updatedFields.email = newEmail;
+        };
 
         if (newPassword) {
             const salt = await bcrypt.genSalt(10);

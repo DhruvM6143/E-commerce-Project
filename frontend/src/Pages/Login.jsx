@@ -6,47 +6,82 @@ import { assets } from '../assets/frontend_assets/assets';
 import Loading from '../Components/Loading';
 
 const Login = ({ loading }) => {
+    const [isValid, setIsValid] = useState(true)
     const { token, setToken, navigate, backendUrl } = useContext(ShopContext)
     const [email, setEmail] = useState('')
+    const [isNameValid, setIsNameValid] = useState(true);
+    const [isPasswordValid, setIsPasswordValid] = useState(true);
     const [curr, setCurr] = useState('Login');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [showPassword, setShowPassword] = useState(false); // State for password visibility
     const toastId = 'auth';
 
+
+    const handleEmailChange = (e) => {
+        const emailvalue = e.target.value;
+        setEmail(emailvalue)
+
+        const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/
+        setIsValid(emailPattern.test(emailvalue))
+    }
+    const nameChange = (e) => {
+        const namevalue = e.target.value;
+        setName(namevalue)
+
+        const namePattern = /^[a-zA-Z0-9 .'-]+$/
+        setIsNameValid(namePattern.test(namevalue))
+    }
+    const passwordChange = (e) => {
+        const passwordValue = e.target.value;
+        setPassword(passwordValue)
+
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        setIsValid(passwordPattern.test(passwordValue))
+    }
+
+
+
+
+
+
     const onSubmitHandler = async (e) => {
 
         e.preventDefault();
         try {
-            if (curr === 'Sign up') {
-                const response = await axios.post(`${backendUrl}/api/user/register`, { name, email, password });
-                if (response.data.success) {
-                    navigate('/verify-email')
+            if (isValid && isPasswordValid && isNameValid) {
+                if (curr === 'Sign up') {
+                    const response = await axios.post(`${backendUrl}/api/user/register`, { name, email, password });
+                    if (response.data.success) {
+                        navigate('/verify-email')
 
-                    if (!toast.isActive(toastId)) {
-                        toast.success("Please Verify your Email", { toastId })
+                        if (!toast.isActive(toastId)) {
+                            toast.success("Please Verify your Email", { toastId })
+                        }
+                    } else {
+                        if (!toast.isActive(toastId)) {
+                            toast.error(response.data.message, { toastId })
+                        }
                     }
                 } else {
-                    if (!toast.isActive(toastId)) {
-                        toast.error(response.data.message, { toastId })
+                    const response = await axios.post(`${backendUrl}/api/user/login`, { email, password });
+                    if (response.data.success) {
+                        setToken(response.data.token);
+                        localStorage.setItem('token', response.data.token);
+                        if (!toast.isActive(toastId)) {
+                            toast.success(response.data.message, { toastId })
+                        }
                     }
+                    else {
+                        if (!toast.isActive(toastId)) {
+                            toast.error(response.data.message, { toastId })
+                        }
+
+                    }
+
                 }
             } else {
-                const response = await axios.post(`${backendUrl}/api/user/login`, { email, password });
-                if (response.data.success) {
-                    setToken(response.data.token);
-                    localStorage.setItem('token', response.data.token);
-                    if (!toast.isActive(toastId)) {
-                        toast.success(response.data.message, { toastId })
-                    }
-                }
-                else {
-                    if (!toast.isActive(toastId)) {
-                        toast.error(response.data.message, { toastId })
-                    }
-
-                }
-
+                console.log('Invalid email format');
             }
         } catch (error) {
             console.log(error);
@@ -76,30 +111,38 @@ const Login = ({ loading }) => {
                         {curr === 'Login' ? null : (
                             <input
                                 type="text"
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={nameChange}
                                 value={name}
                                 placeholder='Name'
                                 className='w-full px-3 py-2 border border-gray-800'
                                 required
                             />
+
                         )}
+                        {!isNameValid && <p style={{ color: 'red' }}>Name can only contain letters, spaces, ., ', and -</p>}
                         <input
                             type="email"
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={handleEmailChange}
                             value={email}
                             placeholder='Email'
                             className='w-full px-3 py-2 border border-gray-800'
                             required
                         />
+                        {!isValid && <p style={{ color: 'red' }}>Email must end with @gmail.com and can only contain letters, numbers, ., _, and -</p>}
                         <div className='relative w-full'>
                             <input
                                 type={showPassword ? 'text' : 'password'} // Toggle password visibility
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={passwordChange}
                                 value={password}
                                 placeholder='Password'
                                 className='w-full px-3 py-2 border border-gray-800'
                                 required
                             />
+                            {!isPasswordValid && (
+                                <p style={{ color: 'red' }}>
+                                    Password must be at least 8 characters long, with at least one uppercase letter, one lowercase letter, one number, and one special character.
+                                </p>
+                            )}
                             <button
                                 type="button"
                                 className='absolute right-3 top-1/2 transform -translate-y-1/2' // Positioning the eye icon
