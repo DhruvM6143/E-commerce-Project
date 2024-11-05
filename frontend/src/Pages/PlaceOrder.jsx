@@ -9,7 +9,8 @@ import Loading from '../Components/Loading';
 const toastId = 'auth'
 const PlaceOrder = ({ loading }) => {
     const [method, setMethod] = useState('COD'); // Default payment method
-    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+    const { navigate, backendUrl, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+    const [token] = useState(localStorage.getItem('token'));
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
