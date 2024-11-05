@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react'
-import Title from './Components/Title'
+import Title from '../Components/Title'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { ShopContext } from './Context/ShopContext'
-import Loading from './Components/Loading'
+import { ShopContext } from '../Context/ShopContext'
+import Loading from '../Components/Loading'
 const ResetPassword = ({ loading }) => {
     const [password, setPassword] = useState('')
     const [isValidP, setIsValidP] = useState(true)

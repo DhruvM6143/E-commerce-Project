@@ -6,10 +6,23 @@ import { ShopContext } from '../Context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Loading from '../Components/Loading';
+
 const toastId = 'auth'
 const PlaceOrder = ({ loading }) => {
+    const [validFname, setValidFname] = useState(true)
+    const [validLname, setValidLname] = useState(true)
+    const [validEmail, setValidEmail] = useState(true)
+    const [validStreet, setValidStreet] = useState(true)
+    const [validCity, setValidCity] = useState(true)
+    const [validState, SetValidState] = useState(true)
+    const [validCountry, setValidCountry] = useState(true)
+    const [validZipcode, setValidZipcode] = useState(true)
+    const [validPhone, setValidPhone] = useState(true)
+
+
     const [method, setMethod] = useState('COD'); // Default payment method
-    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+    const { navigate, backendUrl, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+    const [token] = useState(localStorage.getItem('token'));
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -22,10 +35,71 @@ const PlaceOrder = ({ loading }) => {
         phone: ''
     });
 
-    const onChangeHandler = (event) => {
-        const { name, value } = event.target;
-        setFormData(data => ({ ...data, [name]: value }));
-    };
+
+
+    const firstnamehandle = (e) => {
+        const firstNameValue = e.target.value;
+        setFormData((data) => ({ ...data, firstName: firstNameValue }))
+
+        const firstnamepattern = /^[a-zA-Z]{2,30}$/;
+        setValidFname(firstnamepattern.test(firstNameValue))
+    }
+    const lastnamehandle = (e) => {
+        const lastnamevalue = e.target.value;
+        setFormData((data) => ({ ...data, lastName: lastnamevalue }))
+
+        const lastnamepattern = /^[a-zA-Z]{2,30}$/;
+        setValidLname(lastnamepattern.test(lastnamevalue))
+    }
+    const emailhandle = (e) => {
+        const emailvalue = e.target.value;
+        setFormData((data) => ({ ...data, email: emailvalue }))
+
+        const emailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        setValidEmail(emailpattern.test(emailvalue))
+    }
+    const streethandle = (e) => {
+        const streetvalue = e.target.value;
+        setFormData((data) => ({ ...data, street: streetvalue }))
+
+        const streetpattern = /^[a-zA-Z0-9\s,'-]{3,50}$/;
+        setValidStreet(streetpattern.test(streetvalue))
+    }
+    const cityhandle = (e) => {
+        const cityvalue = e.target.value;
+        setFormData((data) => ({ ...data, city: cityvalue }))
+
+        const citypattern = /^[a-zA-Z\s]{2,50}$/;
+        setValidCity(citypattern.test(cityvalue))
+    }
+    const statehandle = (e) => {
+        const statevalue = e.target.value;
+        setFormData((data) => ({ ...data, state: statevalue }))
+
+        const statePattern = /^[a-zA-Z\s]{2,50}$/;
+        SetValidState(statePattern.test(statevalue))
+    }
+    const countryHandle = (e) => {
+        const countryvalue = e.target.value;
+        setFormData((data) => ({ ...data, country: countryvalue }))
+
+        const countryPattern = /^[a-zA-Z\s]{2,50}$/;
+        setValidCountry(countryPattern.test(countryvalue))
+    }
+    const zipcodehandle = (e) => {
+        const zipcodevalue = e.target.value;
+        setFormData((data) => ({ ...data, zipcode: zipcodevalue }))
+
+        const zipcodePattern = /^\d{5}(-\d{4})?$/
+        setValidZipcode(zipcodePattern.test(zipcodevalue))
+    }
+    const phoneHandle = (e) => {
+        const phonevalue = e.target.value;
+        setFormData((data) => ({ ...data, phone: phonevalue }))
+
+        const phonePattern = /^\+?[0-9]{10,15}$/
+        setValidPhone(phonePattern.test(phonevalue))
+    }
 
     const initPay = (order) => {
         const options = {
@@ -59,71 +133,77 @@ const PlaceOrder = ({ loading }) => {
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
-        try {
-            let orderItems = [];
-            for (const itemId in cartItems) {
-                for (const size in cartItems[itemId]) {
-                    if (cartItems[itemId][size] > 0) {
-                        const product = products.find(product => product._id === itemId);
-                        if (product) {
-                            const itemInfo = { ...product, size: size, quantity: cartItems[itemId][size] };
-                            orderItems.push(itemInfo);
-                        } else {
-                            console.warn(`Product with ID ${itemId} not found.`);
+        if (validCity && validCountry && validEmail && validFname && validLname && validPhone && validState && validZipcode && validStreet) {
+            try {
+                let orderItems = [];
+                for (const itemId in cartItems) {
+                    for (const size in cartItems[itemId]) {
+                        if (cartItems[itemId][size] > 0) {
+                            const product = products.find(product => product._id === itemId);
+                            if (product) {
+                                const itemInfo = { ...product, size: size, quantity: cartItems[itemId][size] };
+                                orderItems.push(itemInfo);
+                            } else {
+                                console.warn(`Product with ID ${itemId} not found.`);
+                            }
                         }
                     }
                 }
+
+                let orderData = {
+                    address: formData,
+                    items: orderItems,
+                    amount: getCartAmount() + delivery_fee,
+                };
+
+                switch (method) {
+                    case 'COD':
+                        const response = await axios.post(`${backendUrl}/api/order/place`, orderData, { headers: { token } });
+
+                        if (response.data.success) {
+                            setCartItems({}); // Clear cart on successful order
+                            toast.success('Order placed successfully!');
+                            navigate('/orders');
+                        } else {
+                            toast.error(response.data.message);
+                        }
+                        break;
+
+                    case 'stripe':
+                        const responseStripe = await axios.post(`${backendUrl}/api/order/stripe`, orderData, { headers: { token } });
+                        if (responseStripe.data.success) {
+                            const { session_url } = responseStripe.data;
+                            window.location.replace(session_url);
+                        } else {
+                            toast.error(responseStripe.data.message);
+                        }
+                        break;
+
+                    case 'razorpay':
+                        const responseRazorpay = await axios.post(`${backendUrl}/api/order/razor`, orderData, { headers: { token } });
+                        if (responseRazorpay.data.success) {
+                            initPay(responseRazorpay.data.order);
+
+                        }
+                        break;
+
+                    default:
+                        toast.error('Selected payment method is not supported yet.');
+                        break;
+                }
+
+            } catch (error) {
+                console.error('Error while placing the order:', error);
+                toast.error('An error occurred while placing your order. Please try again.');
             }
-
-            let orderData = {
-                address: formData,
-                items: orderItems,
-                amount: getCartAmount() + delivery_fee,
-            };
-
-            switch (method) {
-                case 'COD':
-                    const response = await axios.post(`${backendUrl}/api/order/place`, orderData, { headers: { token } });
-
-                    if (response.data.success) {
-                        setCartItems({}); // Clear cart on successful order
-                        toast.success('Order placed successfully!');
-                        navigate('/orders');
-                    } else {
-                        toast.error(response.data.message);
-                    }
-                    break;
-
-                case 'stripe':
-                    const responseStripe = await axios.post(`${backendUrl}/api/order/stripe`, orderData, { headers: { token } });
-                    if (responseStripe.data.success) {
-                        const { session_url } = responseStripe.data;
-                        window.location.replace(session_url);
-                    } else {
-                        toast.error(responseStripe.data.message);
-                    }
-                    break;
-
-                case 'razorpay':
-                    const responseRazorpay = await axios.post(`${backendUrl}/api/order/razor`, orderData, { headers: { token } });
-                    if (responseRazorpay.data.success) {
-                        initPay(responseRazorpay.data.order);
-
-                    }
-                    break;
-
-                default:
-                    toast.error('Selected payment method is not supported yet.');
-                    break;
-            }
-
-        } catch (error) {
-            console.error('Error while placing the order:', error);
-            toast.error('An error occurred while placing your order. Please try again.');
+        }
+        else {
+            toast.error('Please fill correct details')
         }
     };
 
     useEffect(() => {
+
         if (!token) {
             if (!toast.isActive(toastId)) {
                 toast.error('Please Login first', { id: toastId, autoClose: 2000 })
@@ -143,20 +223,20 @@ const PlaceOrder = ({ loading }) => {
                                 <Title text1={'DELIVERY'} text2={'INFORMATION'} />
                             </div>
                             <div className='flex gap-3'>
-                                <input onChange={onChangeHandler} name='firstName' value={formData.firstName} type="text" required placeholder='First Name' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
-                                <input onChange={onChangeHandler} name='lastName' value={formData.lastName} type="text" required placeholder='Last Name' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
+                                <input onChange={firstnamehandle} name='firstName' value={formData.firstName} type="text" required placeholder='First Name' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validFname ? 'border-red-500' : ''}`} />
+                                <input onChange={lastnamehandle} name='lastName' value={formData.lastName} type="text" required placeholder='Last Name' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validLname ? 'border-red-500' : ''}`} />
                             </div>
-                            <input onChange={onChangeHandler} name='email' value={formData.email} type="email" required placeholder='Email Address' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
-                            <input onChange={onChangeHandler} name='street' value={formData.street} type="text" required placeholder='Street' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
+                            <input onChange={emailhandle} name='email' value={formData.email} type="email" required placeholder='Email Address' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validEmail ? 'border-red-500' : ''}`} />
+                            <input onChange={streethandle} name='street' value={formData.street} type="text" required placeholder='Street' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validStreet ? 'border-red-500' : ''}`} />
                             <div className='flex gap-3'>
-                                <input onChange={onChangeHandler} name='city' value={formData.city} type="text" required placeholder='City' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
-                                <input onChange={onChangeHandler} name='state' value={formData.state} type="text" required placeholder='State' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
+                                <input onChange={cityhandle} name='city' value={formData.city} type="text" required placeholder='City' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validCity ? 'border-red-500' : ''}`} />
+                                <input onChange={statehandle} name='state' value={formData.state} type="text" required placeholder='State' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validState ? 'border-red-500' : ''}`} />
                             </div>
                             <div className='flex gap-3'>
-                                <input onChange={onChangeHandler} name='zipcode' value={formData.zipcode} type="number" required placeholder='Zipcode' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
-                                <input onChange={onChangeHandler} name='country' value={formData.country} type="text" required placeholder='Country' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
+                                <input onChange={zipcodehandle} name='zipcode' value={formData.zipcode} type="number" required placeholder='Zipcode' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validZipcode ? 'border-red-500' : ''}`} />
+                                <input onChange={countryHandle} name='country' value={formData.country} type="text" required placeholder='Country' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validCountry ? 'border-red-500' : ''}`} />
                             </div>
-                            <input onChange={onChangeHandler} name='phone' value={formData.phone} type="number" required placeholder='Phone' className='border border-gray-300 rounded py-1.5 px-3.5 w-full' />
+                            <input onChange={phoneHandle} name='phone' value={formData.phone} type="number" required placeholder='Phone' className={`border border-gray-300 rounded py-1.5 px-3.5 w-full ${!validPhone ? 'border-red-500' : ''}`} />
                         </div>
                         {/* Right side */}
                         <div className='mt-8'>

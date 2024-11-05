@@ -19,7 +19,7 @@ import Loading from "./Components/Loading"
 import axios from "axios"
 import MyProfile from "./Pages/MyProfile"
 import ForgotPassword from "./Pages/ForgotPassword"
-import ResetPassword from "./ResetPassword"
+import ResetPassword from "./Pages/ResetPassword"
 import VerifyEmail from "./Pages/VerifyEmail"
 
 function App() {
