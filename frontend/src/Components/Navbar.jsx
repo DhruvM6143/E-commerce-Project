@@ -64,7 +64,7 @@ const Navbar = () => {
                     ) : (
                         <button
                             onClick={() => navigate('/login')}
-                            className='mb-2 rounded-md bg-black text-white font-light px-4 py-1 sm:px-5 sm:py-2 mt-4 text-xs sm:text-sm'
+                            className='mb-2 rounded-md bg-black text-white font-light px-4 py-3 sm:px-5 sm:py-2 mt-4 text-xs sm:text-sm'
                         >
                             Login
                         </button>
