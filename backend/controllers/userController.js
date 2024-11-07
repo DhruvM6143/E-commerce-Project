@@ -25,7 +25,8 @@ const loginUser = async (req, res) => {
         if (user.isVerified === false) {
             return res.json({
                 success: false,
-                message: "Email not verified. Please check your email for verification link"
+                message: "Email not verified. Please check your email for verification link",
+                verified: user.isVerified
             })
         }
 
@@ -39,6 +40,7 @@ const loginUser = async (req, res) => {
         if (isMatched) {
             const token = createToken(user._id);
             res.json({
+
                 success: true,
                 message: "Login Successful",
                 token

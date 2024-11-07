@@ -72,6 +72,10 @@ const Login = ({ loading }) => {
                             toast.success(response.data.message, { toastId })
                         }
                     }
+                    else if (response.data.verified == false) {
+                        toast.error(response.data.message)
+                        navigate('/verify-email')
+                    }
                     else {
                         if (!toast.isActive(toastId)) {
                             toast.error(response.data.message, { toastId })
